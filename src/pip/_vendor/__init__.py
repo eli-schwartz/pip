@@ -29,18 +29,14 @@ WHEEL_DIR = os.path.abspath(os.path.dirname(__file__))
 def vendored(modulename):
     vendored_name = "{0}.{1}".format(__name__, modulename)
 
-    try:
-        __import__(modulename, globals(), locals(), level=0)
-    except ImportError:
-        # This error used to be silenced in earlier variants of this file, to instead
-        # raise the error when pip actually tries to use the missing module. 
-        # Based on inputs in #5354, this was changed to explicitly raise the error.
-        # Re-raising the exception without modifying it is an intentional choice. 
-        raise
-    else:
-        sys.modules[vendored_name] = sys.modules[modulename]
-        base, head = vendored_name.rsplit(".", 1)
-        setattr(sys.modules[base], head, sys.modules[modulename])
+    # This error used to be silenced in earlier variants of this file, to instead
+    # raise the error when pip actually tries to use the missing module.
+    # Based on inputs in #5354, this was changed to explicitly raise the error.
+    # Re-raising the exception without modifying it is an intentional choice.
+    __import__(modulename, globals(), locals(), level=0)
+    sys.modules[vendored_name] = sys.modules[modulename]
+    base, head = vendored_name.rsplit(".", 1)
+    setattr(sys.modules[base], head, sys.modules[modulename])
 
 
 # If we're operating in a debundled setup, then we want to go ahead and trigger
