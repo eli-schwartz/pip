@@ -77,8 +77,18 @@ if DEBUNDLED:
     vendored("requests.packages.urllib3.connection")
     vendored("requests.packages.urllib3.connectionpool")
     vendored("requests.packages.urllib3.contrib")
-    vendored("requests.packages.urllib3.contrib.ntlmpool")
-    vendored("requests.packages.urllib3.contrib.pyopenssl")
+    # these submodules are optional and may fail to import, so:
+    # - they must be vendored() if possible
+    # - if they cannot be imported at all they must be ignored, whether
+    #   or not other vendored modules are ignored
+    try:
+        vendored("requests.packages.urllib3.contrib.ntlmpool")
+    except ImportError:
+        pass
+    try:
+        vendored("requests.packages.urllib3.contrib.pyopenssl")
+    except ImportError:
+        pass
     vendored("requests.packages.urllib3.exceptions")
     vendored("requests.packages.urllib3.fields")
     vendored("requests.packages.urllib3.filepost")
