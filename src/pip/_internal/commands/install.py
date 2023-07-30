@@ -299,6 +299,21 @@ class InstallCommand(RequirementCommand):
             isolated_mode=options.isolated_mode,
         )
 
+        # Gentoo specific: the externally managed check is bad because:
+        # - it can be overridden and break portage
+        # - it is overly restrictive to user use cases
+        # We intentionally check for this after pip checks if we should drop down to implicit --user
+        installing_into_portage_environment = (
+            installing_into_current_environment
+            and not running_under_virtualenv()
+            and not options.use_user_site
+        )
+        if installing_into_portage_environment and not os.getenv('GENTOO_PIP_TESTING'):
+            raise CommandError("(Gentoo) Installing into directories packaged by portage is not allowed.\n"
+                               "Please either:\n"
+                               "  - install modules with portage instead\n"
+                               "  - run pip with the --user option to manage your per-user modules")
+
         target_temp_dir: Optional[TempDirectory] = None
         target_temp_dir_path: Optional[str] = None
         if options.target_dir:
